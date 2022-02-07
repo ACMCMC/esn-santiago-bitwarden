@@ -14,6 +14,7 @@ services:
     volumes:
     - ${PWD}/bitwarden:/data
     - ${PWD}/utilities/backup.sh:/backup.sh:ro
+    #- ${PWD}/certs:/etc/ssl/certs:ro
     environment:
     - LOG_FILE=/data/bitwarden.log
     - WEBSOCKET_ENABLED=true            # required for websockets
@@ -120,7 +121,7 @@ services:
     - SSMTP_PASSWORD=${SMTP_PASSWORD}
     - SSMTP_HOSTNAME=Bitwarden (${DOMAIN})
     - SSMTP_TLS=${SMTP_SSL}
-    - SSMTP_STARTTLS=YES
+    - SSMTP_STARTTLS=${SMTP_EXPLICIT_TLS}
     - TZ
 
 
@@ -169,6 +170,19 @@ services:
     - WATCHTOWER_SCHEDULE
     - TZ
 
+
+  mail:
+    image: ixdotai/smtp
+    container_name: mail
+    restart: always
+    environment:
+    - MAILNAME=esn-santiago.org
+    - KEY_PATH=/data/key.pem
+    - CERTIFICATE_PATH=/data/cert.pem
+    - PORT=587
+    - RELAY_NETWORKS=:172.19.0.0/16
+    volumes:
+    - ${PWD}/certs:/data
 
 volumes:
   caddycerts:
